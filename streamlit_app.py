@@ -43,7 +43,7 @@ if (
         lat="Latitude",
         lon="Longitude",
         color="Site Status",
-        hover_name="Site Name",
+        hover_name="Name",
         zoom=5,
         mapbox_style="open-street-map",
         height=600
