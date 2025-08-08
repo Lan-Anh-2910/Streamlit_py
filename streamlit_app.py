@@ -40,7 +40,7 @@ try:
             lat="Latitude",
             lon="Longitude",
             color="Site Status",
-            hover_name="Name",  # Nếu cột 'Name' không tồn tại, thay bằng 'Site Name' hoặc cột phù hợp
+            hover_name="Name", 
             zoom=5,
             mapbox_style="open-street-map",
             height=600
