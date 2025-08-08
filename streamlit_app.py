@@ -6,7 +6,11 @@ import plotly.express as px
 df = pd.read_csv("Overall.csv")
 
 # --- Clean column names ---
-df.columns = df.columns.str.strip()  # ✅ Xử lý lỗi tên cột thừa dấu cách
+df.columns = df.columns.str.strip()
+
+# --- Convert Latitude/Longitude to numeric ---
+df["Latitude"] = pd.to_numeric(df["Latitude"], errors="coerce")
+df["Longitude"] = pd.to_numeric(df["Longitude"], errors="coerce")
 
 st.set_page_config(layout="wide")
 st.title("🗺️ Bản đồ Site tại Việt Nam")
@@ -25,20 +29,20 @@ if province_filter:
 if status_filter:
     filtered_df = filtered_df[filtered_df["Site Status"].isin(status_filter)]
 
-# --- Ensure valid Latitude/Longitude ---
+# --- Remove rows with invalid lat/lon ---
 filtered_df = filtered_df.dropna(subset=["Latitude", "Longitude"])
-filtered_df = filtered_df[filtered_df["Latitude"] != ""]
-filtered_df = filtered_df[filtered_df["Longitude"] != ""]
+
+st.write("✅ Dữ liệu sau lọc:")
+st.dataframe(filtered_df)
 
 try:
-    # --- Plot map ---
     if not filtered_df.empty:
         fig = px.scatter_mapbox(
             filtered_df,
             lat="Latitude",
             lon="Longitude",
             color="Site Status",
-            hover_name="Name",  # ✅ Đảm bảo đúng tên cột sau khi strip
+            hover_name="Name",
             zoom=5,
             mapbox_style="open-street-map",
             height=600
@@ -47,4 +51,5 @@ try:
     else:
         st.warning("⚠️ Không có dữ liệu phù hợp để hiển thị trên bản đồ.")
 except Exception as e:
-    st.error(f"Đã xảy ra lỗi khi hiển thị bản đồ: {e}")
+    st.error("❌ Đã xảy ra lỗi khi hiển thị bản đồ.")
+    st.exception(e)
