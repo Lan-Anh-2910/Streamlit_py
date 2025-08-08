@@ -1,4 +1,3 @@
-# app.py
 import streamlit as st
 import pandas as pd
 import plotly.express as px
@@ -23,21 +22,35 @@ if province_filter:
 if status_filter:
     filtered_df = filtered_df[filtered_df["Site Status"].isin(status_filter)]
 
-# --- Plot map ---
-st.write("Filtered DataFrame:")
-st.dataframe(filtered_df)
-fig = px.scatter_mapbox(
-    filtered_df,
-    lat="Latitude",
-    lon="Longitude",
-    color="Site Status",
-    hover_name="Site Name",
-    zoom=5,
-    mapbox_style="open-street-map",
-    height=600
-)
-st.plotly_chart(fig, use_container_width=True)
+# --- Debug info ---
+st.write("🧪 Các cột hiện tại:")
+st.write(filtered_df.columns.tolist())
+
+st.write("🧪 Dữ liệu Latitude/Longitude (5 dòng đầu):")
+if "Latitude" in filtered_df.columns and "Longitude" in filtered_df.columns:
+    st.write(filtered_df[["Latitude", "Longitude"]].head())
+
+# --- Plot map (với kiểm tra an toàn) ---
+if (
+    not filtered_df.empty
+    and "Latitude" in filtered_df.columns
+    and "Longitude" in filtered_df.columns
+    and filtered_df["Latitude"].notnull().any()
+    and filtered_df["Longitude"].notnull().any()
+):
+    fig = px.scatter_mapbox(
+        filtered_df,
+        lat="Latitude",
+        lon="Longitude",
+        color="Site Status",
+        hover_name="Site Name",
+        zoom=5,
+        mapbox_style="open-street-map",
+        height=600
+    )
+    st.plotly_chart(fig, use_container_width=True)
+else:
+    st.warning("⚠️ Không có dữ liệu phù hợp hoặc thiếu cột tọa độ hợp lệ!")
 
 # --- Show table ---
 st.dataframe(filtered_df)
-
