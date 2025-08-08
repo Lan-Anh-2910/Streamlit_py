@@ -24,6 +24,8 @@ if status_filter:
     filtered_df = filtered_df[filtered_df["Site Status"].isin(status_filter)]
 
 # --- Plot map ---
+st.write("Filtered DataFrame:")
+st.dataframe(filtered_df)
 fig = px.scatter_mapbox(
     filtered_df,
     lat="Latitude",
