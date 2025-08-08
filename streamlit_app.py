@@ -6,7 +6,7 @@ import plotly.express as px
 df = pd.read_csv("Overall.csv")
 
 st.set_page_config(layout="wide")
-st.title("Bản đồ Site tại Việt Nam")
+st.title("🗺️ Bản đồ Site tại Việt Nam")
 
 # --- Sidebar filters ---
 region_filter = st.sidebar.multiselect("Chọn Region", df["Region"].unique())
@@ -22,15 +22,7 @@ if province_filter:
 if status_filter:
     filtered_df = filtered_df[filtered_df["Site Status"].isin(status_filter)]
 
-# --- Debug info ---
-st.write("🧪 Các cột hiện tại:")
-st.write(filtered_df.columns.tolist())
-
-st.write("🧪 Dữ liệu Latitude/Longitude (5 dòng đầu):")
-if "Latitude" in filtered_df.columns and "Longitude" in filtered_df.columns:
-    st.write(filtered_df[["Latitude", "Longitude"]].head())
-
-# --- Plot map (với kiểm tra an toàn) ---
+# --- Plot map ---
 if (
     not filtered_df.empty
     and "Latitude" in filtered_df.columns
@@ -43,14 +35,14 @@ if (
         lat="Latitude",
         lon="Longitude",
         color="Site Status",
-        hover_name="Name",
+        hover_name="Name", 
         zoom=5,
         mapbox_style="open-street-map",
         height=600
     )
     st.plotly_chart(fig, use_container_width=True)
 else:
-    st.warning("⚠️ Không có dữ liệu phù hợp hoặc thiếu cột tọa độ hợp lệ!")
+    st.warning("⚠️ Không có dữ liệu phù hợp hoặc thiếu thông tin tọa độ.")
 
-# --- Show table ---
-st.dataframe(filtered_df)
+# --- Show filtered table if needed ---
+# st.dataframe(filtered_df)  # ⬅️ bạn có thể bật lại nếu cần xem bảng
