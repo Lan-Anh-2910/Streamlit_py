@@ -2,13 +2,9 @@ import streamlit as st
 import pandas as pd
 import plotly.express as px
 
-# --- Load data ---
+# --- Load and clean data ---
 df = pd.read_csv("Overall.csv")
-
-# --- Clean column names ---
 df.columns = df.columns.str.strip()
-
-# --- Convert Latitude/Longitude to numeric ---
 df["Latitude"] = pd.to_numeric(df["Latitude"], errors="coerce")
 df["Longitude"] = pd.to_numeric(df["Longitude"], errors="coerce")
 
@@ -20,7 +16,7 @@ region_filter = st.sidebar.multiselect("Chọn Region", df["Region"].dropna().un
 province_filter = st.sidebar.multiselect("Chọn Tỉnh/Thành", df["Province"].dropna().unique())
 status_filter = st.sidebar.multiselect("Chọn Site Status", df["Site Status"].dropna().unique())
 
-# --- Filter data ---
+# --- Apply filters ---
 filtered_df = df.copy()
 if region_filter:
     filtered_df = filtered_df[filtered_df["Region"].isin(region_filter)]
@@ -29,12 +25,14 @@ if province_filter:
 if status_filter:
     filtered_df = filtered_df[filtered_df["Site Status"].isin(status_filter)]
 
-# --- Remove rows with invalid lat/lon ---
+# --- Drop invalid lat/lon ---
 filtered_df = filtered_df.dropna(subset=["Latitude", "Longitude"])
 
-st.write("✅ Dữ liệu sau lọc:")
+# --- Debug table ---
+st.write("📊 Dữ liệu sau lọc:")
 st.dataframe(filtered_df)
 
+# --- Map ---
 try:
     if not filtered_df.empty:
         fig = px.scatter_mapbox(
@@ -42,7 +40,7 @@ try:
             lat="Latitude",
             lon="Longitude",
             color="Site Status",
-            hover_name="Name",
+            hover_name="Name",  # Nếu cột 'Name' không tồn tại, thay bằng 'Site Name' hoặc cột phù hợp
             zoom=5,
             mapbox_style="open-street-map",
             height=600
