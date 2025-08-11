@@ -3,7 +3,7 @@ import pandas as pd
 import plotly.graph_objects as go
 
 # --- Load token ---
-mapbox_token = st.secrets["MAPBOX_TOKEN"]
+mapbox_token = st.secrets["pk.eyJ1IjoibGFuYW5obHQiLCJhIjoiY21jcjh6Ym0xMHNmdDJtb3JmMXNhZnRoMSJ9.pG7wl565RwodDmt_ErrTVg"]
 
 # --- Load site data ---
 sites_df = pd.read_csv("Overall.csv")
