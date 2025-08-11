@@ -61,7 +61,7 @@ try:
                 site_ids = [sid for sid in site_ids if pd.notna(sid)]  # bỏ ô trống
 
                 # Lấy tọa độ từng site trong tuyến
-                coords = filtered_sites[filtered_sites["ID"].isin(site_ids)][["Latitude", "Longitude"]]
+                coords = filtered_sites[filtered_sites["Name"].isin(site_ids)][["Latitude", "Longitude"]]
                 if len(coords) >= 2:  # cần ít nhất 2 điểm để vẽ đường
                     fig.add_trace(go.Scattermapbox(
                         lat=coords["Latitude"],
