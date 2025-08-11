@@ -1,6 +1,7 @@
 import streamlit as st
 import pandas as pd
 import plotly.graph_objects as go
+import plotly.express as px
 
 # --- Load token ---
 mapbox_token = st.secrets["mapbox_token"]
@@ -44,31 +45,37 @@ try:
     if not filtered_sites.empty:
         fig = go.Figure()
 
-        # 1. Thêm điểm Site
-        fig.add_trace(go.Scattermapbox(
-            lat=filtered_sites["Latitude"],
-            lon=filtered_sites["Longitude"],
-            mode="markers",
-            marker=dict(size=8, color="red"),
-            text=filtered_sites["Name"],
-            hoverinfo="text"
-        ))
+        # 1. Thêm điểm Site với màu theo Site Type (mỗi loại 1 trace -> có legend)
+        site_types = filtered_sites["Site Type"].unique()
+        color_seq = px.colors.qualitative.Set2
+
+        for i, stype in enumerate(site_types):
+            df_type = filtered_sites[filtered_sites["Site Type"] == stype]
+            fig.add_trace(go.Scattermapbox(
+                lat=df_type["Latitude"],
+                lon=df_type["Longitude"],
+                mode="markers",
+                marker=dict(size=8, color=color_seq[i % len(color_seq)]),
+                text=df_type["Name"] + "<br>Type: " + df_type["Site Type"],
+                hoverinfo="text",
+                name=stype  # tên để hiển thị ở legend
+            ))
 
         # 2. Nếu bật Route -> vẽ đường nối
         if show_route:
             for _, route in routes_df.iterrows():
-                site_ids = [route["Site1"], route["Site2"], route.get("Site3")]
-                site_ids = [sid for sid in site_ids if pd.notna(sid)]  # bỏ ô trống
+                site_names = [route["Site1"], route["Site2"], route.get("Site3")]
+                site_names = [name for name in site_names if pd.notna(name)]  # bỏ ô trống
 
-                # Lấy tọa độ từng site trong tuyến
-                coords = filtered_sites[filtered_sites["Name"].isin(site_ids)][["Latitude", "Longitude"]]
-                if len(coords) >= 2:  # cần ít nhất 2 điểm để vẽ đường
+                coords = filtered_sites[filtered_sites["Name"].isin(site_names)][["Latitude", "Longitude"]]
+                if len(coords) >= 2:
                     fig.add_trace(go.Scattermapbox(
                         lat=coords["Latitude"],
                         lon=coords["Longitude"],
                         mode="lines",
                         line=dict(width=2, color="blue"),
-                        hoverinfo="none"
+                        hoverinfo="none",
+                        name="Route"  # tên trong legend
                     ))
 
         fig.update_layout(
@@ -79,7 +86,15 @@ try:
                 center=dict(lat=16, lon=107)
             ),
             margin=dict(l=0, r=0, t=0, b=0),
-            height=700
+            height=700,
+            legend=dict(
+                title="Site Type",
+                orientation="h",
+                yanchor="bottom",
+                y=0.01,
+                xanchor="left",
+                x=0.01
+            )
         )
 
         st.plotly_chart(fig, use_container_width=True)
